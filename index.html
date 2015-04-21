@@ -1,0 +1,334 @@
+<html class=""><head><meta charset="UTF-8"><meta name="robots" content="noindex"><link rel="canonical" href="http://codepen.io/icebob/pen/DbfgK">
+
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Tangerine">
+<style class="cp-pen-styles">@import url(http://fonts.googleapis.com/css?family=Dosis:300|Lato:300,400,600,700|Roboto+Condensed:300,700|Open+Sans+Condensed:300,600|Open+Sans:400,300,600,700|Maven+Pro:400,700);
+@import url("http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css");
+html {
+  background-image: url(http://i.imgur.com/2UeGfhZ.jpg);
+}
+
+body {
+  padding: 0px;
+  margin: 0px;
+  font-family: "Open Sans";
+  font-size: 14px;
+  font-smoothing: antialiased;
+  background-color:white;
+}
+
+.page {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  -moz-box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+}
+
+.pageHeader {	
+  width: 100%;
+  height: 50px;
+  line-height: 50px;
+  background-color: #54b9cd;
+  color: White;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 5px 20px;
+  vertical-align: middle;
+}
+.pageHeader .title {
+  width: 40%;
+  float: left;
+  line-height: 40px;
+  font-size: 3em;
+  font-weight: 700;
+   font-family: 'Tangerine', serif;
+}
+.pageHeader .userPanel {
+  width: 40%;
+  float: right;
+}
+.pageHeader .userPanel i {
+  float: right;
+  line-height: 40px;
+  padding-right: 10px;
+}
+.pageHeader .userPanel .username {
+  float: right;
+  line-height: 40px;
+  padding: 0px 20px;
+  font-weight: 600;
+  font-size: 1.0em;
+}
+.pageHeader .userPanel img {
+  float: right;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 100%;
+}
+
+.main {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  clear: both;
+  background-color: white;
+}
+.main .nav {
+  width: 250px;
+  height: 100%;
+  float: left;
+  background-color:  rgba(227,234,235, 1);
+}
+
+.main .nav .menu {
+  margin: 15px;
+  background-color: rgba(227,234,235, 1.0);
+}
+
+.main .nav .menu .title {
+  font-weight: 700;
+  font-size: 1.0em;
+  text-transform: uppercase;
+
+}
+
+.main .view {
+  position: relative;
+  height: 100%; margin: 0; padding: 0;
+  margin-left: 200px;
+}
+
+.clear {
+  clear: both;
+}
+
+
+#ticker-wrapper {
+	height: 90%;
+	width: 100%;
+	overflow-y: scroll;
+	position: relative;
+	
+}
+
+#ticker-wrapper ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	height: 100%;
+	width: 100%
+	position: relative;
+	transition: all 1500ms ease-in;
+}
+
+#ticker-wrapper li {
+    cursor: hand;
+	display: block;
+	height: 80px;
+	width: 100%;
+	margin-bottom: 0.3em;
+	position: relative;
+	font-size: x-small;
+
+	}
+
+
+#ticker-wrapper li figure {
+	width: 80px;
+	height: 80px;
+	float: left;
+	margin: 0;
+	padding-right: 10px;
+}
+
+#ticker-wrapper li figure img {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+#ticker-wrapper li h3 {
+    display: block;
+	margin-left: 0;
+	font-size: 1em;
+}	
+
+
+</style>
+
+<script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBcJe3_BZbF6Zepsg-5S3QUG2IVLywA0rA">
+  </script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script src="scripts/polling.js"></script>
+    
+	<script type="text/javascript">
+	  var map;
+	  var mapOptions = {
+          center: { lat:12.972512,lng:79.159156},
+          zoom: 16
+	  };
+	  var pos;
+	  var directionsDisplay;
+		 
+      function initialize() {
+
+		  directionsService = new google.maps.DirectionsService();
+		  
+		  directionsDisplay = new google.maps.DirectionsRenderer();
+		  
+		 map = new google.maps.Map(document.getElementById('map-canvas'),
+				mapOptions);
+		 
+		 directionsDisplay.setMap(map);
+				
+		 if(navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(function(position) {
+			  pos = new google.maps.LatLng(position.coords.latitude,
+											   position.coords.longitude);
+
+			  var infowindow = new google.maps.InfoWindow({
+				map: map,
+				position: pos,
+				content: "I'm here"
+			  });
+				
+			  map.setCenter(pos);
+			}, function() {
+			  handleNoGeolocation(true);
+			});
+		  } else {
+	
+			handleNoGeolocation(false);
+		  }
+  
+		 setTimeout(function() { getContent(); }, 2000);
+		
+      }
+      google.maps.event.addDomListener(window, 'load', initialize);
+	  
+	  function handleNoGeolocation(errorFlag) {
+		  if (errorFlag) {
+			var content = 'Error: The Geolocation service failed.';
+		  } else {
+			var content = 'Error: Your browser doesn\'t support geolocation.';
+		  }
+
+		  var options = {
+			map: map,
+			position: new google.maps.LatLng(60, 105),
+			content: content
+		  };
+
+		  var infowindow = new google.maps.InfoWindow(options);
+		  map.setCenter(options.position);
+		}
+		
+		function calcRoute(dest) {
+		 
+		 var request = {
+			  origin:pos,
+			  destination:dest,
+			  travelMode: google.maps.TravelMode.DRIVING
+		  };
+		  directionsService.route(request, function(response, status) {
+			if (status == google.maps.DirectionsStatus.OK) {
+			  directionsDisplay.setDirections(response);
+			}
+		  });
+		}
+	 
+    </script>
+	
+</head>
+
+<body>
+<div class="page">
+  <div class="pageHeader">
+    <div class="title">PartyCloud</div>
+    <div class="userPanel"><i class="fa fa-chevron-down"></i><span class="username">Welcome </span><img src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcShr2xvHsmCG_SKAvLmZGKUneN3N_lQtAmmkjIYlKthPOJ34dXTfd2TRw" onclick="change(-1,-1);" width="40" height="40"></div>
+  </div>
+  <div class="main">
+    <div class="nav">
+     
+      <div class="menu">
+        <div class="title">Recent Updates</div>
+      
+      
+	  <div id="ticker">
+		<div id="ticker-wrapper">
+			<ul id="ticker-wrapper-inner">
+				
+			</ul>
+		</div>
+	  </div>	
+    </div>
+    </div>
+    <div class="view" id="map-canvas">
+    </div>
+  </div>
+  
+  <style>
+    .popup__inner {
+	  position: absolute;
+	  
+	  top: 0px;
+	  left: 20%;
+	  overflow: hidden;
+	  height: 550px;
+	  background-color: #f2f2f2;
+	  width: 950px;
+	  margin: 3em auto 0;
+	  border-radius: 2px;
+	  box-shadow: 0 0 1em rgba(0, 0, 0, 0.6);
+	}
+	
+	.profile__image {
+  width: 948px;
+  height: 525px;
+  border: 0.125em solid black;
+  background-color: #000;
+  display: block;
+  background-size: cover;
+}
+
+.popup__header {
+  background-color: lightgray;
+  padding: 0.25em 0.75em;
+  text-align: right;
+}
+
+.popup__close {
+  display: inline-block;
+  width: 0.875em;
+  height: 0.875em;
+  background-color: tomato;
+  border-radius: 50%;
+  cursor: hand;
+}
+.popup__close:hover {
+  background-color: #ff401e;
+}
+  </style>
+  
+  <div id="popup" class="popup__inner">
+    <header class="popup__header">
+      <kbd>esc</kbd><a onclick="$('#popup').hide();" class="popup__close"></a>  
+    </header>
+    <img id="popup_img" src="" alt="Bart Veneman" width="124" height="124" class="profile__image">
+  </div>
+</div>
+
+ <script>
+		 $("#popup").hide();
+ 
+</script>
+ </script>
+
+</body></html>
